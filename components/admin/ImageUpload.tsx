@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, DragEvent } from 'react'
 import Image from 'next/image'
 import type { RecipeImage } from '@/lib/supabase'
 import {
@@ -9,6 +9,7 @@ import {
   deleteRecipeImageRecord,
   setPrimaryImage,
 } from '@/lib/supabase'
+import { useNotification } from '@/hooks/useNotification'
 
 interface ImageUploadProps {
   recipeId: number
@@ -17,11 +18,13 @@ interface ImageUploadProps {
 }
 
 export default function ImageUpload({ recipeId, images, onImagesChange }: ImageUploadProps) {
+  const { showSuccess, showError, showErrorModal, showConfirmModal, NotificationContainer } = useNotification()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState('')
+  const [dragActive, setDragActive] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files
+  async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
 
     setUploading(true)
@@ -30,16 +33,12 @@ export default function ImageUpload({ recipeId, images, onImagesChange }: ImageU
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        console.log(`Processing file ${i + 1} of ${files.length}:`, file.name)
         setUploadProgress(`Uploading ${i + 1} of ${files.length}: ${file.name}`)
 
         // Upload to storage
-        console.log('Calling uploadRecipeImage...')
         const result = await uploadRecipeImage(file, recipeId)
-        console.log('Upload result:', result)
 
         if (!result) {
-          console.error(`Upload failed for ${file.name}`)
           alert(`Failed to upload ${file.name}. Check console for details.`)
           continue
         }
@@ -48,8 +47,7 @@ export default function ImageUpload({ recipeId, images, onImagesChange }: ImageU
         const isPrimary = images.length === 0 && i === 0 // First image of first upload
         const displayOrder = images.length + i
 
-        console.log('Adding database record...')
-        const dbRecord = await addRecipeImageRecord(
+        await addRecipeImageRecord(
           recipeId,
           result.path,
           result.url,
@@ -57,74 +55,156 @@ export default function ImageUpload({ recipeId, images, onImagesChange }: ImageU
           displayOrder,
           file.name.replace(/\.[^/.]+$/, '') // Remove extension for alt text
         )
-        console.log('Database record result:', dbRecord)
       }
 
       setUploadProgress('Upload complete!')
       onImagesChange()
 
       // Reset file input
-      e.target.value = ''
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
 
       setTimeout(() => {
         setUploadProgress('')
       }, 2000)
     } catch (error) {
-      console.error('Upload error in handleFileSelect:', error)
+      console.error('Upload error:', error)
       alert('Error uploading images. Check console for details.')
     } finally {
       setUploading(false)
     }
   }
 
-  async function handleSetPrimary(imageId: number) {
-    const success = await setPrimaryImage(imageId)
-    if (success) {
-      onImagesChange()
-    } else {
-      alert('Failed to set primary image')
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    handleFiles(e.target.files)
+  }
+
+  function handleDrag(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true)
+    } else if (e.type === 'dragleave') {
+      setDragActive(false)
     }
   }
 
-  async function handleDelete(imageId: number) {
-    if (!confirm('Are you sure you want to delete this image?')) return
+  function handleDrop(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
 
-    const success = await deleteRecipeImageRecord(imageId)
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files)
+    }
+  }
+
+  function handleClick() {
+    fileInputRef.current?.click()
+  }
+
+  async function handleSetPrimary(imageId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    const success = await setPrimaryImage(imageId)
     if (success) {
+      showSuccess('Primary image updated')
       onImagesChange()
     } else {
-      alert('Failed to delete image')
+      showErrorModal('Update Failed', 'Failed to set primary image. Please try again.')
     }
+  }
+
+  function handleDelete(imageId: number, e?: React.MouseEvent) {
+
+    e?.stopPropagation()
+    e?.preventDefault()
+
+    showConfirmModal(
+      'Delete Image',
+      'Are you sure you want to delete this image?',
+      async () => {
+        const success = await deleteRecipeImageRecord(imageId)
+        if (success) {
+          showSuccess('Image deleted successfully')
+          onImagesChange()
+        } else {
+          showErrorModal('Delete Failed', 'Failed to delete image. Please try again.')
+        }
+      },
+      { variant: 'danger', confirmText: 'Delete' }
+    )
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-semibold text-text-dark mb-2">
-          Recipe Images
-        </label>
-        <p className="text-sm text-text-medium mb-3">
-          Upload images for this recipe. The first image or marked primary image will be used on the homepage.
-        </p>
-
-        <div className="flex items-center gap-4">
-          <label className="btn-primary cursor-pointer">
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileSelect}
-              disabled={uploading}
-              className="hidden"
-            />
-            {uploading ? 'Uploading...' : '+ Add Images'}
+    <>
+      {NotificationContainer()}
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-semibold text-text-dark mb-2">
+            Recipe Images
           </label>
+          <p className="text-sm text-text-medium mb-3">
+            Upload images for this recipe. The first image or marked primary image will be used on the homepage.
+          </p>
 
-          {uploadProgress && (
-            <span className="text-sm text-primary font-medium">
-              {uploadProgress}
-            </span>
-          )}
+        {/* Drag and Drop Zone */}
+        <div
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={handleClick}
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+            dragActive
+              ? 'border-primary bg-primary/10'
+              : 'border-gray-300 hover:border-primary hover:bg-gray-50'
+          } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileSelect}
+            disabled={uploading}
+            className="hidden"
+          />
+
+          <div className="flex flex-col items-center space-y-3">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+
+            {uploading ? (
+              <div className="space-y-2">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p className="text-sm text-primary font-medium">{uploadProgress}</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-lg font-semibold text-text-dark">
+                  Drag and drop images here
+                </p>
+                <p className="text-sm text-text-medium">
+                  or click to browse files
+                </p>
+                <p className="text-xs text-text-medium">
+                  Supports multiple files
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -156,7 +236,8 @@ export default function ImageUpload({ recipeId, images, onImagesChange }: ImageU
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                 {!image.is_primary && (
                   <button
-                    onClick={() => handleSetPrimary(image.id)}
+                    type="button"
+                    onClick={(e) => handleSetPrimary(image.id, e)}
                     className="bg-white text-primary px-3 py-1 rounded text-sm font-semibold hover:bg-primary-light"
                   >
                     Set as Primary
@@ -164,7 +245,8 @@ export default function ImageUpload({ recipeId, images, onImagesChange }: ImageU
                 )}
 
                 <button
-                  onClick={() => handleDelete(image.id)}
+                  type="button"
+                  onClick={(e) => handleDelete(image.id, e)}
                   className="bg-red-500 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-red-600"
                 >
                   Delete
@@ -185,6 +267,7 @@ export default function ImageUpload({ recipeId, images, onImagesChange }: ImageU
           <p className="text-xs mt-1">Click "+ Add Images" to upload</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }

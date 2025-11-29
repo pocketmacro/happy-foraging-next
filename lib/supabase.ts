@@ -956,8 +956,6 @@ export async function uploadContentImage(
     const fileExt = file.name.split('.').pop()
     const fileName = `${folder}/content/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
-    console.log('Uploading content image:', fileName, 'Size:', file.size, 'Type:', file.type)
-
     // Upload to storage in content-images bucket
     const { data: uploadData, error: uploadError } = await browserClient.storage
       .from('recipe-images')
@@ -971,14 +969,10 @@ export async function uploadContentImage(
       throw uploadError
     }
 
-    console.log('Content image upload successful:', uploadData)
-
     // Get public URL
     const { data: { publicUrl } } = browserClient.storage
       .from('recipe-images')
       .getPublicUrl(fileName)
-
-    console.log('Content image public URL:', publicUrl)
 
     return { url: publicUrl, path: fileName }
   } catch (error) {
@@ -1093,8 +1087,6 @@ export async function uploadRecipeImage(
     const fileExt = file.name.split('.').pop()
     const fileName = `${recipeId}/${Date.now()}.${fileExt}`
 
-    console.log('Uploading file:', fileName, 'Size:', file.size, 'Type:', file.type)
-
     // Upload to storage
     const { data: uploadData, error: uploadError } = await browserClient.storage
       .from('recipe-images')
@@ -1108,14 +1100,11 @@ export async function uploadRecipeImage(
       throw uploadError
     }
 
-    console.log('Upload successful:', uploadData)
 
     // Get public URL
     const { data: { publicUrl } } = browserClient.storage
       .from('recipe-images')
       .getPublicUrl(fileName)
-
-    console.log('Public URL:', publicUrl)
 
     return {
       path: fileName,

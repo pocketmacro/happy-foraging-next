@@ -32,12 +32,24 @@ export type RecipeIngredient = {
   quantity: string | null
   optional: boolean
   notes: string | null
+  display_order: number
   ingredient?: Ingredient
 }
 
 export type RecipeImage = {
   id: number
   recipe_id: number
+  storage_path: string
+  public_url: string
+  is_primary: boolean
+  display_order: number
+  alt_text: string | null
+  created_at: string
+}
+
+export type GuideImage = {
+  id: number
+  guide_id: number
   storage_path: string
   public_url: string
   is_primary: boolean
@@ -70,6 +82,7 @@ export type Recipe = {
 export type Guide = {
   id: number
   title: string
+  slug: string | null
   description: string
   content: string
   icon: string | null
@@ -78,6 +91,7 @@ export type Guide = {
   published: boolean
   created_at: string
   updated_at: string
+  guide_images?: GuideImage[]
 }
 
 // =====================================================
@@ -124,6 +138,30 @@ export async function getFeaturedRecipes(): Promise<Recipe[]> {
   }
 }
 
+export async function getRecipeCategories(): Promise<string[]> {
+  try {
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('category')
+      .eq('published', true)
+
+    if (error) throw error
+
+    // Flatten all categories and get unique values
+    const allCategories = new Set<string>()
+    data?.forEach(recipe => {
+      if (recipe.category && Array.isArray(recipe.category)) {
+        recipe.category.forEach((cat: string) => allCategories.add(cat))
+      }
+    })
+
+    return Array.from(allCategories).sort()
+  } catch (error) {
+    console.error('Error fetching recipe categories:', error)
+    return []
+  }
+}
+
 export async function getRecipes(category?: string, includeUnpublished: boolean = false): Promise<Recipe[]> {
   try {
     let query = supabase
@@ -159,7 +197,8 @@ export async function getRecipes(category?: string, includeUnpublished: boolean 
     }
 
     if (category) {
-      query = query.eq('category', category)
+      // Use contains operator for array field
+      query = query.contains('category', [category])
     }
 
     const { data, error } = await query
@@ -314,7 +353,10 @@ export async function getRecipesByIngredients(ingredientIds: number[]): Promise<
 
 export async function getIngredients(): Promise<Ingredient[]> {
   try {
-    const { data, error } = await supabase
+    // Use browser client to avoid caching issues in admin
+    const browserClient = typeof window !== 'undefined' ? createClientComponentClient() : supabase
+
+    const { data, error } = await browserClient
       .from('ingredients')
       .select('*')
       .order('name', { ascending: true })
@@ -323,6 +365,33 @@ export async function getIngredients(): Promise<Ingredient[]> {
     return data || []
   } catch (error) {
     console.error('Error fetching ingredients:', error)
+    return []
+  }
+}
+
+export async function getIngredientsUsedInRecipes(): Promise<Ingredient[]> {
+  try {
+    const browserClient = typeof window !== 'undefined' ? createClientComponentClient() : supabase
+
+    // Get unique ingredients that are used in recipes
+    const { data, error } = await browserClient
+      .from('recipe_ingredients')
+      .select('ingredient_id, ingredients(*)')
+      .order('ingredients(name)', { ascending: true })
+
+    if (error) throw error
+
+    // Extract unique ingredients
+    const uniqueIngredients = new Map<number, Ingredient>()
+    data?.forEach((ri: any) => {
+      if (ri.ingredients && !uniqueIngredients.has(ri.ingredients.id)) {
+        uniqueIngredients.set(ri.ingredients.id, ri.ingredients)
+      }
+    })
+
+    return Array.from(uniqueIngredients.values()).sort((a, b) => a.name.localeCompare(b.name))
+  } catch (error) {
+    console.error('Error fetching ingredients used in recipes:', error)
     return []
   }
 }
@@ -382,16 +451,66 @@ export async function updateIngredient(id: number, updates: Partial<Ingredient>)
 export async function deleteIngredient(id: number): Promise<boolean> {
   try {
     const browserClient = createClientComponentClient()
+
+    // Delete the ingredient (CASCADE will handle recipe_ingredients)
     const { error } = await browserClient
       .from('ingredients')
       .delete()
       .eq('id', id)
 
-    if (error) throw error
+    if (error) {
+      console.error('Error deleting ingredient:', error)
+      return false
+    }
+
     return true
   } catch (error) {
-    console.error('Error deleting ingredient:', error)
+    console.error('Exception while deleting ingredient:', error)
     return false
+  }
+}
+
+export async function deleteUnusedIngredients(): Promise<{ success: boolean; count: number }> {
+  try {
+    const browserClient = createClientComponentClient()
+
+    // Get all ingredients
+    const { data: allIngredients, error: ingredientsError } = await browserClient
+      .from('ingredients')
+      .select('id')
+
+    if (ingredientsError) throw ingredientsError
+
+    // Get all ingredient IDs that are used in recipes
+    const { data: usedIngredients, error: usedError } = await browserClient
+      .from('recipe_ingredients')
+      .select('ingredient_id')
+
+    if (usedError) throw usedError
+
+    // Find ingredient IDs that are NOT used
+    const usedIds = new Set(usedIngredients?.map(ri => ri.ingredient_id) || [])
+    const unusedIds = allIngredients?.filter(ing => !usedIds.has(ing.id)).map(ing => ing.id) || []
+
+    if (unusedIds.length === 0) {
+      return { success: true, count: 0 }
+    }
+
+    // Delete unused ingredients
+    const { error: deleteError } = await browserClient
+      .from('ingredients')
+      .delete()
+      .in('id', unusedIds)
+
+    if (deleteError) {
+      console.error('Error deleting unused ingredients:', deleteError)
+      return { success: false, count: 0 }
+    }
+
+    return { success: true, count: unusedIds.length }
+  } catch (error) {
+    console.error('Exception while deleting unused ingredients:', error)
+    return { success: false, count: 0 }
   }
 }
 
@@ -419,13 +538,144 @@ export async function getOrCreateIngredient(name: string, category?: string): Pr
 // GUIDE FUNCTIONS
 // =====================================================
 
-export async function getGuides(category?: string): Promise<Guide[]> {
+export async function getGuideImages(guideId: number): Promise<GuideImage[]> {
+  try {
+    const { data, error } = await supabase
+      .from('guide_images')
+      .select('*')
+      .eq('guide_id', guideId)
+      .order('display_order', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    console.error('Error fetching guide images:', error)
+    return []
+  }
+}
+
+export async function uploadGuideImage(
+  guideId: number,
+  file: File,
+  isPrimary: boolean = false,
+  altText?: string
+): Promise<GuideImage | null> {
+  try {
+    const browserClient = createClientComponentClient()
+
+    // Generate unique filename
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    const filePath = `guides/${guideId}/${fileName}`
+
+    // Upload to storage
+    const { error: uploadError } = await browserClient.storage
+      .from('recipe-images')
+      .upload(filePath, file)
+
+    if (uploadError) throw uploadError
+
+    // Get public URL
+    const { data: { publicUrl } } = browserClient.storage
+      .from('recipe-images')
+      .getPublicUrl(filePath)
+
+    // If this is primary, unset other primary images first
+    if (isPrimary) {
+      await browserClient
+        .from('guide_images')
+        .update({ is_primary: false })
+        .eq('guide_id', guideId)
+    }
+
+    // Save metadata to database
+    const { data, error } = await browserClient
+      .from('guide_images')
+      .insert({
+        guide_id: guideId,
+        storage_path: filePath,
+        public_url: publicUrl,
+        is_primary: isPrimary,
+        alt_text: altText || null,
+        display_order: 0
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Error uploading guide image:', error)
+    return null
+  }
+}
+
+export async function deleteGuideImage(imageId: number): Promise<boolean> {
+  try {
+    const browserClient = createClientComponentClient()
+
+    // Get image data first to delete from storage
+    const { data: image } = await browserClient
+      .from('guide_images')
+      .select('storage_path')
+      .eq('id', imageId)
+      .single()
+
+    if (image) {
+      // Delete from storage
+      await browserClient.storage
+        .from('recipe-images')
+        .remove([image.storage_path])
+    }
+
+    // Delete from database
+    const { error } = await browserClient
+      .from('guide_images')
+      .delete()
+      .eq('id', imageId)
+
+    if (error) throw error
+    return true
+  } catch (error) {
+    console.error('Error deleting guide image:', error)
+    return false
+  }
+}
+
+export async function setGuideImagePrimary(imageId: number, guideId: number): Promise<boolean> {
+  try {
+    const browserClient = createClientComponentClient()
+
+    // Unset all primary images for this guide
+    await browserClient
+      .from('guide_images')
+      .update({ is_primary: false })
+      .eq('guide_id', guideId)
+
+    // Set this image as primary
+    const { error } = await browserClient
+      .from('guide_images')
+      .update({ is_primary: true })
+      .eq('id', imageId)
+
+    if (error) throw error
+    return true
+  } catch (error) {
+    console.error('Error setting primary guide image:', error)
+    return false
+  }
+}
+
+export async function getGuides(category?: string, includeUnpublished: boolean = false): Promise<Guide[]> {
   try {
     let query = supabase
       .from('guides')
-      .select('*')
-      .eq('published', true)
+      .select('*, guide_images(*)')
       .order('created_at', { ascending: false })
+
+    if (!includeUnpublished) {
+      query = query.eq('published', true)
+    }
 
     if (category) {
       query = query.eq('category', category)
@@ -441,6 +691,23 @@ export async function getGuides(category?: string): Promise<Guide[]> {
   }
 }
 
+export async function getGuideBySlug(slug: string): Promise<Guide | null> {
+  try {
+    const { data, error } = await supabase
+      .from('guides')
+      .select('*')
+      .eq('slug', slug)
+      .eq('published', true)
+      .single()
+
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Error fetching guide by slug:', error)
+    return null
+  }
+}
+
 export async function getGuideById(id: number): Promise<Guide | null> {
   try {
     const { data, error } = await supabase
@@ -452,7 +719,7 @@ export async function getGuideById(id: number): Promise<Guide | null> {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error fetching guide:', error)
+    console.error('Error fetching guide by id:', error)
     return null
   }
 }
@@ -521,6 +788,19 @@ export async function addRecipeIngredient(
 ): Promise<RecipeIngredient | null> {
   try {
     const browserClient = createClientComponentClient()
+
+    // Get the max display_order for this recipe
+    const { data: existingIngredients } = await browserClient
+      .from('recipe_ingredients')
+      .select('display_order')
+      .eq('recipe_id', recipeId)
+      .order('display_order', { ascending: false })
+      .limit(1)
+
+    const nextOrder = existingIngredients && existingIngredients.length > 0
+      ? existingIngredients[0].display_order + 1
+      : 0
+
     const { data, error } = await browserClient
       .from('recipe_ingredients')
       .insert({
@@ -528,7 +808,8 @@ export async function addRecipeIngredient(
         ingredient_id: ingredientId,
         quantity,
         optional,
-        notes
+        notes,
+        display_order: nextOrder
       })
       .select()
       .single()
@@ -538,6 +819,34 @@ export async function addRecipeIngredient(
   } catch (error) {
     console.error('Error adding recipe ingredient:', error)
     return null
+  }
+}
+
+export async function updateRecipeIngredientsOrder(ingredients: { id: number; display_order: number }[]): Promise<boolean> {
+  try {
+    const browserClient = createClientComponentClient()
+
+    // Update each ingredient's display_order
+    const promises = ingredients.map(({ id, display_order }) =>
+      browserClient
+        .from('recipe_ingredients')
+        .update({ display_order })
+        .eq('id', id)
+    )
+
+    const results = await Promise.all(promises)
+
+    // Check if any updates failed
+    const hasError = results.some(result => result.error)
+    if (hasError) {
+      console.error('Error updating ingredient order')
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error updating recipe ingredients order:', error)
+    return false
   }
 }
 
@@ -561,9 +870,13 @@ export async function removeRecipeIngredient(recipeId: number, ingredientId: num
 export async function createGuide(guide: Partial<Guide>): Promise<Guide | null> {
   try {
     const browserClient = createClientComponentClient()
+
+    // Exclude fields that shouldn't be inserted
+    const { id, created_at, updated_at, guide_images, ...insertData } = guide as any
+
     const { data, error } = await browserClient
       .from('guides')
-      .insert(guide)
+      .insert(insertData)
       .select()
       .single()
 
@@ -578,9 +891,13 @@ export async function createGuide(guide: Partial<Guide>): Promise<Guide | null> 
 export async function updateGuide(id: number, guide: Partial<Guide>): Promise<Guide | null> {
   try {
     const browserClient = createClientComponentClient()
+
+    // Exclude fields that shouldn't be updated
+    const { id: _id, created_at, updated_at, guide_images, ...updateData } = guide as any
+
     const { data, error } = await browserClient
       .from('guides')
-      .update(guide)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()

@@ -27,14 +27,15 @@ export default async function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center text-white">
-        <div className="absolute inset-0 z-0">
+      <section className="relative h-[600px] flex items-center justify-center text-white overflow-hidden">
+        <div className="absolute inset-0 z-0" style={{ transform: 'translateZ(0)' }}>
           <Image
             src="/images/backgrounds/hero-1.jpg"
             alt="Foraging in nature"
             fill
             className="object-cover"
             priority
+            style={{ transform: 'scale(1.1)' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary-dark/90" />
         </div>
@@ -51,7 +52,7 @@ export default async function Home() {
               Explore Recipes
             </Link>
             <Link href="/guides" className="btn-secondary bg-white/90 hover:bg-white">
-              Foraging Guides
+              Guides
             </Link>
           </div>
         </div>

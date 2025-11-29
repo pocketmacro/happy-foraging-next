@@ -40,4 +40,159 @@
   .heading-3 {
     @apply text-2xl md:text-3xl font-semibold text-primary mb-3;
   }
+
+}
+
+/* Markdown Preview Styles - Override default markdown CSS */
+.markdown-preview,
+.markdown-preview[data-color-mode="light"] {
+  background-color: transparent !important;
+  color: #2d3436 !important;
+  font-family: inherit !important;
+}
+
+.markdown-preview *,
+.markdown-preview[data-color-mode="light"] * {
+  background-color: transparent !important;
+  font-family: inherit !important;
+}
+
+.markdown-preview p,
+.markdown-preview[data-color-mode="light"] p {
+  color: #2d3436 !important;
+  line-height: 1.75 !important;
+  margin-bottom: 1rem !important;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  color: #2d3436 !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.markdown-preview h1 {
+  font-size: 1.875rem !important;
+}
+
+.markdown-preview h2 {
+  font-size: 1.5rem !important;
+}
+
+.markdown-preview h3 {
+  font-size: 1.25rem !important;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  color: #2d3436 !important;
+  line-height: 1.75 !important;
+  margin-bottom: 1rem !important;
+  margin-left: 1.5rem !important;
+  list-style: inherit !important;
+}
+
+.markdown-preview ul {
+  list-style-type: disc !important;
+}
+
+.markdown-preview ol {
+  list-style-type: decimal !important;
+}
+
+.markdown-preview li {
+  margin-bottom: 0.5rem !important;
+  color: #2d3436 !important;
+  display: list-item !important;
+}
+
+.markdown-preview strong {
+  font-weight: 700 !important;
+  color: #2d3436 !important;
+}
+
+.markdown-preview em {
+  font-style: italic !important;
+  color: #2d3436 !important;
+}
+
+.markdown-preview code {
+  background-color: #f3f4f6 !important;
+  color: #6c8e3b !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+}
+
+.markdown-preview pre {
+  background-color: #f3f4f6 !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  margin-bottom: 1rem !important;
+  overflow-x: auto !important;
+}
+
+.markdown-preview pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+.markdown-preview blockquote {
+  border-left: 4px solid #6c8e3b !important;
+  padding-left: 1rem !important;
+  font-style: italic !important;
+  color: #636e72 !important;
+  margin-bottom: 1rem !important;
+}
+
+.markdown-preview a {
+  color: #6c8e3b !important;
+  text-decoration: underline !important;
+}
+
+.markdown-preview a:hover {
+  color: #546e2e !important;
+}
+
+.markdown-preview hr {
+  border-color: #d1d5db !important;
+  margin: 1.5rem 0 !important;
+}
+
+.markdown-preview table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin-bottom: 1rem !important;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+  border: 1px solid #d1d5db !important;
+  padding: 0.5rem 1rem !important;
+  text-align: left !important;
+}
+
+.markdown-preview th {
+  background-color: #f3f4f6 !important;
+  font-weight: 600 !important;
+  color: #2d3436 !important;
+}
+
+.markdown-preview td {
+  color: #2d3436 !important;
+}
+
+/* Parallax Effect */
+@supports (background-attachment: fixed) {
+  .parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
 }

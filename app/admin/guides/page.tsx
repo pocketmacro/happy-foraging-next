@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { getGuides, createGuide, updateGuide, deleteGuide, type Guide } from '@/lib/supabase'
+import { getGuides, createGuide, updateGuide, deleteGuide, getGuideImages, type Guide, type GuideImage } from '@/lib/supabase'
 import MarkdownEditor from '@/components/admin/MarkdownEditor'
+import GuideImagesSection from '@/components/admin/GuideImagesSection'
+import { generateSlug } from '@/lib/utils'
+import { useNotification } from '@/hooks/useNotification'
 
 type GuideFormData = {
   title: string
+  slug: string
   description: string
   content: string
   icon: string
@@ -16,13 +20,16 @@ type GuideFormData = {
 }
 
 export default function GuidesAdminPage() {
+  const { showSuccess, showErrorModal, showConfirmModal, NotificationContainer } = useNotification()
   const searchParams = useSearchParams()
   const [guides, setGuides] = useState<Guide[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(searchParams?.get('new') === 'true')
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null)
+  const [guideImages, setGuideImages] = useState<GuideImage[]>([])
   const [formData, setFormData] = useState<GuideFormData>({
     title: '',
+    slug: '',
     description: '',
     content: '',
     icon: '🌿',
@@ -37,14 +44,20 @@ export default function GuidesAdminPage() {
 
   async function loadGuides() {
     setLoading(true)
-    const data = await getGuides()
+    const data = await getGuides(undefined, true) // Include unpublished in admin
     setGuides(data)
     setLoading(false)
+  }
+
+  async function loadGuideImages(guideId: number) {
+    const images = await getGuideImages(guideId)
+    setGuideImages(images)
   }
 
   function resetForm() {
     setFormData({
       title: '',
+      slug: '',
       description: '',
       content: '',
       icon: '🌿',
@@ -53,13 +66,15 @@ export default function GuidesAdminPage() {
       published: true,
     })
     setEditingGuide(null)
+    setGuideImages([])
     setShowForm(false)
   }
 
-  function handleEdit(guide: Guide) {
+  async function handleEdit(guide: Guide) {
     setEditingGuide(guide)
     setFormData({
       title: guide.title,
+      slug: guide.slug || generateSlug(guide.title),
       description: guide.description,
       content: guide.content,
       icon: guide.icon || '🌿',
@@ -68,6 +83,8 @@ export default function GuidesAdminPage() {
       published: guide.published,
     })
     setShowForm(true)
+    // Load images for this guide
+    await loadGuideImages(guide.id)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -81,15 +98,17 @@ export default function GuidesAdminPage() {
     if (editingGuide) {
       const updated = await updateGuide(editingGuide.id, guideData)
       if (!updated) {
-        alert('Error updating guide')
+        showErrorModal('Update Failed', 'There was an error updating the guide. Please try again.')
         return
       }
+      showSuccess('Guide updated successfully')
     } else {
       const created = await createGuide(guideData)
       if (!created) {
-        alert('Error creating guide')
+        showErrorModal('Create Failed', 'There was an error creating the guide. Please try again.')
         return
       }
+      showSuccess('Guide created successfully')
     }
 
     resetForm()
@@ -97,14 +116,20 @@ export default function GuidesAdminPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Are you sure you want to delete this guide?')) return
-
-    const success = await deleteGuide(id)
-    if (success) {
-      loadGuides()
-    } else {
-      alert('Error deleting guide')
-    }
+    showConfirmModal(
+      'Delete Guide',
+      'Are you sure you want to delete this guide? This action cannot be undone.',
+      async () => {
+        const success = await deleteGuide(id)
+        if (success) {
+          showSuccess('Guide deleted successfully')
+          loadGuides()
+        } else {
+          showErrorModal('Delete Failed', 'There was an error deleting the guide. Please try again.')
+        }
+      },
+      { variant: 'danger', confirmText: 'Delete' }
+    )
   }
 
   const categories = [
@@ -117,7 +142,9 @@ export default function GuidesAdminPage() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4">
+    <>
+      <NotificationContainer />
+      <div className="max-w-7xl mx-auto px-4">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-text-dark mb-2">Manage Guides</h1>
@@ -139,6 +166,13 @@ export default function GuidesAdminPage() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Guide Images Section */}
+            <GuideImagesSection
+              guideId={editingGuide?.id || null}
+              images={guideImages}
+              onImagesChange={() => editingGuide && loadGuideImages(editingGuide.id)}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-text-dark mb-2">Title</label>
@@ -146,11 +180,38 @@ export default function GuidesAdminPage() {
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => {
+                    const title = e.target.value
+                    // Auto-generate slug from title when creating new guide
+                    if (!editingGuide) {
+                      setFormData({ ...formData, title, slug: generateSlug(title) })
+                    } else {
+                      setFormData({ ...formData, title })
+                    }
+                  }}
                   className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-text-dark mb-2">
+                  URL Slug
+                  <span className="text-xs text-text-medium ml-2">(SEO-friendly URL)</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  placeholder="auto-generated-from-title"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+                />
+                <p className="text-xs text-text-medium mt-1">
+                  URL will be: /guides/{formData.slug || 'your-guide-slug'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-text-dark mb-2">Category</label>
                 <select
@@ -311,5 +372,6 @@ Write your foraging guide content here. You can use Markdown formatting:
         </div>
       </div>
     </div>
+    </>
   )
 }

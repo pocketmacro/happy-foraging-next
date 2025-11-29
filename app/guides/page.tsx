@@ -1,50 +1,23 @@
-import Image from 'next/image'
+'use client'
+
+import { useState, useEffect } from 'react'
+import GuideCard from '@/components/GuideCard'
+import { getGuides, type Guide } from '@/lib/supabase'
 
 export default function GuidesPage() {
-  const guides = [
-    {
-      id: 1,
-      title: 'Getting Started with Foraging',
-      description: 'Learn the basics of safe and sustainable foraging practices.',
-      icon: '🌿',
-      topics: ['Safety guidelines', 'Best seasons', 'Essential tools', 'Legal considerations'],
-    },
-    {
-      id: 2,
-      title: 'Identifying Edible Plants',
-      description: 'Master the art of plant identification to forage safely.',
-      icon: '🔍',
-      topics: ['Visual identification', 'Common lookalikes', 'Seasonal changes', 'Regional variations'],
-    },
-    {
-      id: 3,
-      title: 'Mushroom Foraging Safety',
-      description: 'Critical information for safe mushroom foraging.',
-      icon: '🍄',
-      topics: ['Poisonous varieties', 'Identification tips', 'Spore prints', 'Expert verification'],
-    },
-    {
-      id: 4,
-      title: 'Sustainable Harvesting',
-      description: 'Ethical practices to preserve nature for future generations.',
-      icon: '♻️',
-      topics: ['Leave no trace', 'Harvest limits', 'Ecosystem impact', 'Propagation'],
-    },
-    {
-      id: 5,
-      title: 'Foraging by Season',
-      description: 'Discover what to forage throughout the year.',
-      icon: '📅',
-      topics: ['Spring greens', 'Summer berries', 'Fall mushrooms', 'Winter finds'],
-    },
-    {
-      id: 6,
-      title: 'Storage and Preservation',
-      description: 'Keep your foraged foods fresh and delicious.',
-      icon: '🏺',
-      topics: ['Drying methods', 'Freezing tips', 'Pickling', 'Making preserves'],
-    },
-  ]
+  const [guides, setGuides] = useState<Guide[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadGuides()
+  }, [])
+
+  async function loadGuides() {
+    setLoading(true)
+    const data = await getGuides()
+    setGuides(data)
+    setLoading(false)
+  }
 
   const safetyTips = [
     'Never eat anything you cannot positively identify',
@@ -60,7 +33,7 @@ export default function GuidesPage() {
       {/* Hero Section */}
       <section className="bg-primary-dark text-white py-16">
         <div className="container-custom px-4">
-          <h1 className="heading-1 text-white mb-4">Foraging Guides</h1>
+          <h1 className="heading-1 text-white mb-4">Guides</h1>
           <p className="text-xl max-w-2xl">
             Learn to safely identify, harvest, and preserve wild foods with our comprehensive guides
           </p>
@@ -96,26 +69,23 @@ export default function GuidesPage() {
       <section className="section">
         <div className="container-custom px-4">
           <h2 className="heading-2 text-center mb-12">Explore Our Guides</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {guides.map((guide) => (
-              <div key={guide.id} className="card p-6">
-                <div className="text-5xl mb-4">{guide.icon}</div>
-                <h3 className="heading-3">{guide.title}</h3>
-                <p className="text-text-medium mb-4">{guide.description}</p>
-                <div className="border-t border-gray-200 pt-4">
-                  <p className="text-sm font-semibold text-primary mb-2">Topics covered:</p>
-                  <ul className="space-y-1">
-                    {guide.topics.map((topic, index) => (
-                      <li key={index} className="text-sm text-text-medium flex items-start">
-                        <span className="text-primary mr-2">•</span>
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : guides.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {guides.map((guide) => (
+                <GuideCard key={guide.id} guide={guide} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-xl text-text-medium">
+                No guides available yet. Check back soon!
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

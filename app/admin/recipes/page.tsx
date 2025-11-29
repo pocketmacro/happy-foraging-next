@@ -2,13 +2,88 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { getRecipes, createRecipe, updateRecipe, deleteRecipe, addRecipeIngredient, removeRecipeIngredient, getRecipeImages, getIngredients, createIngredient, type Recipe, type Ingredient, type RecipeImage } from '@/lib/supabase'
+import { getRecipes, createRecipe, updateRecipe, deleteRecipe, addRecipeIngredient, removeRecipeIngredient, updateRecipeIngredientsOrder, getRecipeImages, getIngredients, createIngredient, type Recipe, type Ingredient, type RecipeImage } from '@/lib/supabase'
 import IngredientSearch from '@/components/admin/IngredientSearch'
 import RecipeImagesSection from '@/components/admin/RecipeImagesSection'
 import MarkdownEditor from '@/components/admin/MarkdownEditor'
 import CategoryInput from '@/components/admin/CategoryInput'
 import { generateSlug } from '@/lib/utils'
 import { parseRecipeText } from '@/lib/recipeImporter'
+import { useNotification } from '@/hooks/useNotification'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Sortable Ingredient Item Component
+function SortableIngredientItem({
+  ingredient,
+  index,
+  onRemove
+}: {
+  ingredient: RecipeIngredientData
+  index: number
+  onRemove: (index: number) => void
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: index })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between bg-bg-light p-3 rounded"
+    >
+      <div className="flex items-center flex-1">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing mr-3 text-gray-400 hover:text-gray-600"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+          </svg>
+        </div>
+        <div className="flex-1">
+          <span className="font-medium">{ingredient.ingredient.name}</span>
+          {ingredient.quantity && <span className="text-text-medium"> - {ingredient.quantity}</span>}
+          {ingredient.optional && <span className="text-xs bg-yellow-200 px-2 py-1 rounded ml-2">Optional</span>}
+          {ingredient.notes && <p className="text-sm text-text-medium">{ingredient.notes}</p>}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => onRemove(index)}
+        className="text-red-600 hover:text-red-800 ml-4"
+      >
+        ✕
+      </button>
+    </div>
+  )
+}
 
 type RecipeFormData = {
   title: string
@@ -34,6 +109,7 @@ type RecipeIngredientData = {
 }
 
 export default function RecipesAdminPage() {
+  const { showSuccess, showError, showErrorModal, showConfirmModal, NotificationContainer } = useNotification()
   const searchParams = useSearchParams()
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
@@ -71,6 +147,14 @@ export default function RecipesAdminPage() {
   const [importText, setImportText] = useState('')
   const [importTitle, setImportTitle] = useState('')
   const [importDescription, setImportDescription] = useState('')
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     loadRecipes()
@@ -154,7 +238,7 @@ export default function RecipesAdminPage() {
     if (editingRecipe) {
       const updated = await updateRecipe(editingRecipe.id, formData)
       if (!updated) {
-        alert('Error updating recipe')
+        showErrorModal('Update Failed', 'There was an error updating the recipe. Please try again.')
         return
       }
       recipeId = updated.id
@@ -166,14 +250,16 @@ export default function RecipesAdminPage() {
           await removeRecipeIngredient(recipeId, ri.ingredient!.id)
         }
       }
+      showSuccess('Recipe updated successfully')
     } else {
       const created = await createRecipe(formData)
       if (!created) {
-        alert('Error creating recipe')
+        showErrorModal('Create Failed', 'There was an error creating the recipe. Please try again.')
         return
       }
       recipeId = created.id
       savedRecipe = created
+      showSuccess('Recipe created successfully')
     }
 
     // Add all ingredients
@@ -201,14 +287,20 @@ export default function RecipesAdminPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Are you sure you want to delete this recipe?')) return
-
-    const success = await deleteRecipe(id)
-    if (success) {
-      loadRecipes()
-    } else {
-      alert('Error deleting recipe')
-    }
+    showConfirmModal(
+      'Delete Recipe',
+      'Are you sure you want to delete this recipe? This action cannot be undone.',
+      async () => {
+        const success = await deleteRecipe(id)
+        if (success) {
+          showSuccess('Recipe deleted successfully')
+          loadRecipes()
+        } else {
+          showErrorModal('Delete Failed', 'There was an error deleting the recipe. Please try again.')
+        }
+      },
+      { variant: 'danger', confirmText: 'Delete' }
+    )
   }
 
   function addIngredient() {
@@ -229,18 +321,48 @@ export default function RecipesAdminPage() {
     })
   }
 
-  function removeIngredient(index: number) {
+  async function removeIngredient(index: number) {
+    const ingredientToRemove = ingredients[index]
+
+    // Remove from local state
     setIngredients(ingredients.filter((_, i) => i !== index))
+
+    // If it's an existing ingredient (has ID) and we're editing a recipe, delete from database
+    if (ingredientToRemove.id && editingRecipe) {
+      await removeRecipeIngredient(editingRecipe.id, ingredientToRemove.ingredient.id)
+    }
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = ingredients.findIndex((_, i) => i === active.id)
+      const newIndex = ingredients.findIndex((_, i) => i === over.id)
+
+      const newIngredients = arrayMove(ingredients, oldIndex, newIndex)
+      setIngredients(newIngredients)
+
+      // If editing existing recipe, update display_order in database
+      if (editingRecipe) {
+        const updates = newIngredients.map((ing, index) => ({
+          id: ing.id!,
+          display_order: index
+        })).filter(u => u.id) // Only update existing ingredients
+
+        await updateRecipeIngredientsOrder(updates)
+      }
+    }
   }
 
   async function handleImport() {
     if (!importText.trim()) {
-      alert('Please enter recipe text to import')
+      showError('Please enter recipe text to import')
       return
     }
 
     if (!importTitle.trim()) {
-      alert('Please enter a recipe title')
+      showError('Please enter a recipe title')
       return
     }
 
@@ -306,7 +428,9 @@ export default function RecipesAdminPage() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4">
+    <>
+      <NotificationContainer />
+      <div className="max-w-7xl mx-auto px-4">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-text-dark mb-2">Manage Recipes</h1>
@@ -431,6 +555,13 @@ Add olive oil to a pan. Cook onions for 2-3 minutes...`}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Recipe Images Section */}
+            <RecipeImagesSection
+              recipeId={editingRecipe?.id || null}
+              images={recipeImages}
+              onImagesChange={() => editingRecipe && loadRecipeImages(editingRecipe.id)}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-text-dark mb-2">Title</label>
@@ -549,24 +680,29 @@ Add olive oil to a pan. Cook onions for 2-3 minutes...`}
 
               {/* Current Ingredients List */}
               {ingredients.length > 0 && (
-                <div className="mb-4 space-y-2">
-                  {ingredients.map((ing, index) => (
-                    <div key={index} className="flex items-center justify-between bg-bg-light p-3 rounded">
-                      <div className="flex-1">
-                        <span className="font-medium">{ing.ingredient.name}</span>
-                        {ing.quantity && <span className="text-text-medium"> - {ing.quantity}</span>}
-                        {ing.optional && <span className="text-xs bg-yellow-200 px-2 py-1 rounded ml-2">Optional</span>}
-                        {ing.notes && <p className="text-sm text-text-medium">{ing.notes}</p>}
+                <div className="mb-4">
+                  <p className="text-sm text-text-medium mb-2">Drag to reorder ingredients</p>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={ingredients.map((_, index) => index)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-2">
+                        {ingredients.map((ing, index) => (
+                          <SortableIngredientItem
+                            key={index}
+                            ingredient={ing}
+                            index={index}
+                            onRemove={removeIngredient}
+                          />
+                        ))}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removeIngredient(index)}
-                        className="text-red-600 hover:text-red-800 ml-4"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
+                    </SortableContext>
+                  </DndContext>
                 </div>
               )}
 
@@ -651,13 +787,6 @@ Add olive oil to a pan. Cook onions for 2-3 minutes...`}
 Use **bold** for emphasis, *italic* for notes, and `code` for measurements."
               height={400}
               required
-            />
-
-            {/* Recipe Images Section */}
-            <RecipeImagesSection
-              recipeId={editingRecipe?.id || null}
-              images={recipeImages}
-              onImagesChange={() => editingRecipe && loadRecipeImages(editingRecipe.id)}
             />
 
             <div className="flex items-center space-x-2">
@@ -764,5 +893,6 @@ Use **bold** for emphasis, *italic* for notes, and `code` for measurements."
         </div>
       </div>
     </div>
+    </>
   )
 }

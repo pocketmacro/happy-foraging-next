@@ -28,14 +28,17 @@ export default async function RecipePage({ params }: { params: { slug: string } 
   return (
     <>
       {/* Recipe Header */}
-      <section className="relative h-[400px]">
-        <Image
-          src={headerImageUrl}
-          alt={headerImageAlt}
-          fill
-          className="object-cover"
-          priority
-        />
+      <section className="relative h-[400px] overflow-hidden">
+        <div className="absolute inset-0" style={{ transform: 'translateZ(0)' }}>
+          <Image
+            src={headerImageUrl}
+            alt={headerImageAlt}
+            fill
+            className="object-cover"
+            priority
+            style={{ transform: 'scale(1.1)' }}
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20" />
         <div className="absolute bottom-0 left-0 right-0 text-white p-8">
           <div className="container-custom">
@@ -74,25 +77,29 @@ export default async function RecipePage({ params }: { params: { slug: string } 
 
               <div className="mb-8">
                 <h2 className="heading-2 mb-4">Ingredients</h2>
-                <ul className="space-y-3">
-                  {recipe.recipe_ingredients?.map((ri) => (
-                    <li key={ri.id} className="flex items-start">
-                      <span className="text-primary mr-2">•</span>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          {ri.quantity && <span className="font-semibold text-text-dark">{ri.quantity}</span>}
-                          <span className="text-text-dark">{ri.ingredient?.name}</span>
-                          {ri.optional && (
-                            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded">Optional</span>
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <ul className="space-y-4">
+                    {recipe.recipe_ingredients?.sort((a, b) => a.display_order - b.display_order).map((ri) => (
+                      <li key={ri.id} className="flex items-start pb-3 border-b border-gray-100 last:border-b-0 last:pb-0">
+                        <span className="text-primary mr-3 mt-1 text-xl">•</span>
+                        <div className="flex-1">
+                          <div className="flex items-baseline flex-wrap gap-2">
+                            {ri.quantity && (
+                              <span className="font-bold text-primary text-lg">{ri.quantity}</span>
+                            )}
+                            <span className="text-text-dark text-lg font-medium">{ri.ingredient?.name}</span>
+                            {ri.optional && (
+                              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold">Optional</span>
+                            )}
+                          </div>
+                          {ri.notes && (
+                            <p className="text-sm text-text-medium italic mt-1 ml-0.5">{ri.notes}</p>
                           )}
                         </div>
-                        {ri.notes && (
-                          <span className="text-sm text-text-medium italic">{ri.notes}</span>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
               <div className="mb-8">

@@ -12,15 +12,14 @@ export default function Header() {
       <nav className="container-custom px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center">
             <Image
               src="/images/logo.png"
               alt="Happy Foraging Logo"
-              width={50}
+              width={150}
               height={50}
               className="object-contain"
             />
-            <span className="text-2xl font-bold text-primary-dark">Happy Foraging</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -32,7 +31,7 @@ export default function Header() {
               Recipes
             </Link>
             <Link href="/guides" className="text-text-dark hover:text-primary font-medium transition-colors">
-              Foraging Guides
+              Guides
             </Link>
             <Link href="/about" className="text-text-dark hover:text-primary font-medium transition-colors">
               About
@@ -78,7 +77,7 @@ export default function Header() {
                 className="text-text-dark hover:text-primary font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Foraging Guides
+                Guides
               </Link>
               <Link
                 href="/about"

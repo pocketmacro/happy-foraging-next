@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getIngredients, createIngredient, updateIngredient, deleteIngredient, type Ingredient } from '@/lib/supabase'
+import { getIngredients, createIngredient, updateIngredient, deleteIngredient, deleteUnusedIngredients, type Ingredient } from '@/lib/supabase'
+import { useNotification } from '@/hooks/useNotification'
 
 type IngredientFormData = {
   name: string
@@ -10,6 +11,7 @@ type IngredientFormData = {
 }
 
 export default function IngredientsAdminPage() {
+  const { showSuccess, showError, showErrorModal, showConfirmModal, NotificationContainer } = useNotification()
   const [ingredients, setIngredients] = useState<Ingredient[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -58,15 +60,17 @@ export default function IngredientsAdminPage() {
     if (editingIngredient) {
       const updated = await updateIngredient(editingIngredient.id, formData)
       if (!updated) {
-        alert('Error updating ingredient')
+        showErrorModal('Update Failed', 'There was an error updating the ingredient. Please try again.')
         return
       }
+      showSuccess('Ingredient updated successfully')
     } else {
       const created = await createIngredient(formData.name, formData.category, formData.url)
       if (!created) {
-        alert('Error creating ingredient')
+        showErrorModal('Create Failed', 'There was an error creating the ingredient. Please try again.')
         return
       }
+      showSuccess('Ingredient created successfully')
     }
 
     resetForm()
@@ -74,14 +78,49 @@ export default function IngredientsAdminPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Are you sure you want to delete this ingredient? This will affect all recipes using it.')) return
+    showConfirmModal(
+      'Delete Ingredient',
+      'Are you sure you want to delete this ingredient?',
+      async () => {
+        const success = await deleteIngredient(id)
 
-    const success = await deleteIngredient(id)
-    if (success) {
-      loadIngredients()
-    } else {
-      alert('Error deleting ingredient')
-    }
+        if (success) {
+          showSuccess('Ingredient deleted successfully')
+          await loadIngredients()
+        } else {
+          showErrorModal(
+            'Delete Failed',
+            'There was an error deleting the ingredient. Please try again.'
+          )
+        }
+      },
+      { variant: 'danger', confirmText: 'Delete' }
+    )
+  }
+
+  async function handleDeleteUnused() {
+    showConfirmModal(
+      'Delete Unused Ingredients',
+      'Are you sure you want to delete all ingredients that are not used in any recipes? This action cannot be undone.',
+      async () => {
+        const { success, count } = await deleteUnusedIngredients()
+
+        if (success) {
+          if (count > 0) {
+            showSuccess(`Successfully deleted ${count} unused ingredient${count === 1 ? '' : 's'}`)
+            await loadIngredients()
+          } else {
+            showSuccess('No unused ingredients found')
+          }
+        } else {
+          showErrorModal(
+            'Delete Failed',
+            'There was an error deleting unused ingredients. Please try again.'
+          )
+        }
+      },
+      { variant: 'danger', confirmText: 'Delete Unused' }
+    )
   }
 
   const categories = [
@@ -101,18 +140,28 @@ export default function IngredientsAdminPage() {
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4">
+    <>
+      <NotificationContainer />
+      <div className="max-w-7xl mx-auto px-4">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-text-dark mb-2">Manage Ingredients</h1>
           <p className="text-text-medium">Add, edit, and organize your foraging ingredients</p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="btn-primary"
-        >
-          {showForm ? 'Cancel' : '+ Add Ingredient'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleDeleteUnused}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg"
+          >
+            Delete Unused
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="btn-primary"
+          >
+            {showForm ? 'Cancel' : '+ Add Ingredient'}
+          </button>
+        </div>
       </div>
 
       {/* Ingredient Form */}
@@ -269,5 +318,6 @@ export default function IngredientsAdminPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

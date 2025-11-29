@@ -2,29 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import RecipeCard from '@/components/RecipeCard'
-import { getRecipes, getIngredients, getRecipesByIngredients, type Recipe, type Ingredient } from '@/lib/supabase'
+import { getRecipes, getIngredientsUsedInRecipes, getRecipesByIngredients, getRecipeCategories, type Recipe, type Ingredient } from '@/lib/supabase'
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [allIngredients, setAllIngredients] = useState<Ingredient[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedIngredients, setSelectedIngredients] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [showIngredients, setShowIngredients] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const categories = [
-    { id: 'all', name: 'All Recipes' },
-    { id: 'salads', name: 'Salads' },
-    { id: 'soups', name: 'Soups' },
-    { id: 'mains', name: 'Main Courses' },
-    { id: 'sides', name: 'Sides' },
-    { id: 'desserts', name: 'Desserts' },
-    { id: 'preserves', name: 'Preserves' },
-  ]
-
   useEffect(() => {
     loadIngredients()
+    loadCategories()
   }, [])
 
   useEffect(() => {
@@ -32,8 +24,13 @@ export default function RecipesPage() {
   }, [selectedCategory, selectedIngredients])
 
   async function loadIngredients() {
-    const data = await getIngredients()
+    const data = await getIngredientsUsedInRecipes()
     setAllIngredients(data)
+  }
+
+  async function loadCategories() {
+    const data = await getRecipeCategories()
+    setCategories(data)
   }
 
   async function loadRecipes() {
@@ -94,26 +91,38 @@ export default function RecipesPage() {
           </div>
 
           {/* Category Filter */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-text-dark">Filter by Category</h3>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {categories.map((category) => (
+          {categories.length > 0 && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-text-dark">Filter by Category</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
                 <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => setSelectedCategory('all')}
                   className={`px-6 py-2 rounded-full font-semibold transition-all ${
-                    selectedCategory === category.id
+                    selectedCategory === 'all'
                       ? 'bg-primary text-white shadow-md'
                       : 'bg-white text-primary hover:bg-primary-light hover:text-white'
                   }`}
                 >
-                  {category.name}
+                  All Recipes
                 </button>
-              ))}
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-6 py-2 rounded-full font-semibold transition-all capitalize ${
+                      selectedCategory === category
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-white text-primary hover:bg-primary-light hover:text-white'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Ingredient Filter */}
           <div className="mb-8">

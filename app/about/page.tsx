@@ -37,7 +37,6 @@ export default function AboutPage() {
           <h2 className="heading-2 text-center mb-12">Our Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="card p-8 text-center">
-              <div className="text-6xl mb-4">🌱</div>
               <h3 className="heading-3">Sustainability</h3>
               <p className="text-text-medium">
                 We promote ethical foraging practices that preserve ecosystems and ensure wild foods remain
@@ -45,7 +44,6 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="card p-8 text-center">
-              <div className="text-6xl mb-4">📚</div>
               <h3 className="heading-3">Education</h3>
               <p className="text-text-medium">
                 Knowledge is key to safe foraging. We provide accurate, well-researched information to help
@@ -53,7 +51,6 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="card p-8 text-center">
-              <div className="text-6xl mb-4">🤝</div>
               <h3 className="heading-3">Community</h3>
               <p className="text-text-medium">
                 Foraging is best shared. We foster a supportive community where foragers can learn from
@@ -70,43 +67,31 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto">
             <h2 className="heading-2 mb-8">What We Offer</h2>
             <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="text-3xl">🔍</div>
-                <div>
-                  <h3 className="text-xl font-semibold text-primary mb-2">Comprehensive Guides</h3>
-                  <p className="text-text-medium">
-                    Detailed foraging guides covering plant identification, seasonal availability,
-                    and sustainable harvesting practices.
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-semibold text-primary mb-2">Comprehensive Guides</h3>
+                <p className="text-text-medium">
+                  Detailed foraging guides covering plant identification, seasonal availability,
+                  and sustainable harvesting practices.
+                </p>
               </div>
-              <div className="flex gap-4">
-                <div className="text-3xl">🍳</div>
-                <div>
-                  <h3 className="text-xl font-semibold text-primary mb-2">Tested Recipes</h3>
-                  <p className="text-text-medium">
-                    Delicious recipes featuring foraged ingredients, from simple salads to gourmet dishes.
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-semibold text-primary mb-2">Tested Recipes</h3>
+                <p className="text-text-medium">
+                  Delicious recipes featuring foraged ingredients, from simple salads to gourmet dishes.
+                </p>
               </div>
-              <div className="flex gap-4">
-                <div className="text-3xl">⚠️</div>
-                <div>
-                  <h3 className="text-xl font-semibold text-primary mb-2">Safety Information</h3>
-                  <p className="text-text-medium">
-                    Critical safety guidelines to help you forage confidently and avoid potentially
-                    dangerous plants.
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-semibold text-primary mb-2">Safety Information</h3>
+                <p className="text-text-medium">
+                  Critical safety guidelines to help you forage confidently and avoid potentially
+                  dangerous plants.
+                </p>
               </div>
-              <div className="flex gap-4">
-                <div className="text-3xl">🌍</div>
-                <div>
-                  <h3 className="text-xl font-semibold text-primary mb-2">Regional Resources</h3>
-                  <p className="text-text-medium">
-                    Information tailored to different regions, helping you find edible plants in your area.
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-semibold text-primary mb-2">Regional Resources</h3>
+                <p className="text-text-medium">
+                  Information tailored to different regions, helping you find edible plants in your area.
+                </p>
               </div>
             </div>
           </div>

@@ -5,17 +5,14 @@ import { getFeaturedRecipes } from '@/lib/supabase'
 export default async function Home() {
   const features = [
     {
-      icon: '🌿',
       title: 'Expert Guides',
       description: 'Learn from experienced foragers with detailed identification guides and safety tips.',
     },
     {
-      icon: '🍄',
       title: 'Wild Recipes',
       description: 'Transform your foraged finds into delicious meals with our tested recipes.',
     },
     {
-      icon: '🌍',
       title: 'Sustainable',
       description: 'Practice ethical foraging that respects nature and preserves ecosystems.',
     },
@@ -65,7 +62,6 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="card p-8 text-center">
-                <div className="text-6xl mb-4">{feature.icon}</div>
                 <h3 className="heading-3">{feature.title}</h3>
                 <p className="text-text-medium leading-relaxed">{feature.description}</p>
               </div>

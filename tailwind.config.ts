@@ -45,7 +45,7 @@ const config: Config = {
         // Background colors
         bg: {
           cream: '#fef6ed',
-          'light-green': '#f1f5ed',
+          'light-green': '#FFF3E0',
           'light-peach': '#fdf1ec',
           light: '#f1f0ef',
         },

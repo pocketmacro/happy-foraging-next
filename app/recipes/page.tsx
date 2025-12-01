@@ -69,9 +69,9 @@ export default function RecipesPage() {
       {/* Hero Section */}
       <section className="bg-primary text-white py-16">
         <div className="container-custom px-4">
-          <h1 className="heading-1 text-white mb-4">Local Ingredient Recipes</h1>
+          <h1 className="heading-1 text-white mb-4">Delicious Local Recipes</h1>
           <p className="text-xl max-w-2xl">
-            Explore our collection of delicious recipes featuring fresh, local ingredients from farmers markets and local suppliers
+            Get ready to cook up something amazing! Browse our mouthwatering recipes that showcase the best of what your local farmers markets have to offer.
           </p>
         </div>
       </section>

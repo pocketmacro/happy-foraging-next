@@ -6,15 +6,15 @@ export default async function Home() {
   const features = [
     {
       title: 'Videos',
-      description: 'Learn cooking techniques and tips for making the most of seasonal, local ingredients.',
+      description: 'Watch fun, easy-to-follow cooking videos that bring out the best in seasonal, local ingredients!',
     },
     {
       title: 'Recipes',
-      description: 'Discover delicious recipes featuring fresh ingredients from farmers markets and local suppliers.',
+      description: 'Explore mouthwatering recipes that celebrate the amazing flavors of fresh, local produce.',
     },
     {
       title: 'Sustainable',
-      description: 'Support local farmers and reduce your carbon footprint with community-based food sourcing.',
+      description: 'Feel great knowing you\'re supporting local farmers and building a healthier community!',
     },
   ]
 
@@ -42,7 +42,7 @@ export default async function Home() {
             Welcome to Happy Foraging
           </h1>
           <p className="text-xl md:text-2xl mb-8 leading-relaxed">
-            Discover the joy of cooking with fresh, local ingredients from farmers markets and local suppliers
+            Discover the pure joy of cooking with vibrant, fresh ingredients from your local farmers markets!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/recipes" className="btn-primary">
@@ -123,9 +123,9 @@ export default async function Home() {
       {/* Call to Action */}
       <section className="section bg-primary text-white">
         <div className="container-custom text-center">
-          <h2 className="text-4xl font-bold mb-6">Start Cooking with Local Ingredients Today</h2>
+          <h2 className="text-4xl font-bold mb-6">Let's Cook Something Amazing Together!</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Join our community and discover how to source and prepare delicious meals with fresh, local ingredients
+            Join our vibrant community and unlock the delicious possibilities of cooking with fresh, seasonal ingredients from your neighborhood
           </p>
           <Link href="/guides" className="btn-secondary border-white hover:bg-white/10">
             Get Started

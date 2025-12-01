@@ -20,12 +20,12 @@ export default function GuidesPage() {
   }
 
   const safetyTips = [
-    'Choose produce that is in season for best flavor and value',
-    'Look for bright colors and firm textures',
-    'Get to know your local farmers and suppliers',
-    'Check farmers market schedules in your area',
-    'Store fresh produce properly to maximize freshness',
-    'Buy only what you need to reduce food waste',
+    'Pick what\'s in season - it\'s the tastiest and best value!',
+    'Look for vibrant colors and firm textures for peak freshness',
+    'Chat with your local farmers - they love sharing tips!',
+    'Find your nearest farmers market and make it a weekly ritual',
+    'Store your produce right to keep it fresh and delicious longer',
+    'Buy what you\'ll use to keep things fresh and reduce waste',
   ]
 
   return (
@@ -35,7 +35,7 @@ export default function GuidesPage() {
         <div className="container-custom px-4">
           <h1 className="heading-1 text-white mb-4">Seasonal Guides</h1>
           <p className="text-xl max-w-2xl">
-            Learn to select, prepare, and preserve fresh, local ingredients with our comprehensive seasonal guides
+            Discover everything you need to know about shopping, cooking, and savoring fresh, seasonal ingredients - your adventure starts here!
           </p>
         </div>
       </section>
@@ -49,7 +49,7 @@ export default function GuidesPage() {
             </div>
             <div className="bg-white rounded-lg p-8 shadow-md">
               <p className="text-lg text-text-dark mb-6">
-                Getting the most from farmers markets and local suppliers is easy when you follow these helpful tips:
+                Shopping at farmers markets is so much fun! Here are our favorite tips to help you get the freshest, tastiest ingredients:
               </p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {safetyTips.map((tip, index) => (

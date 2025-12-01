@@ -11,8 +11,8 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">Happy Foraging</h3>
             <p className="text-gray-300 leading-relaxed">
-              Discover the joy of cooking with fresh, local ingredients from farmers markets
-              and local suppliers with seasonal recipes and expert tips.
+              We're passionate about celebrating fresh, local ingredients and the amazing farmers who grow them.
+              Join us for delicious recipes, seasonal tips, and lots of cooking inspiration!
             </p>
           </div>
 
@@ -42,7 +42,7 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">Connect With Us</h3>
             <p className="text-gray-300 mb-4">
-              Join our community of local food enthusiasts and stay updated with the latest seasonal recipes and guides.
+              Join our friendly community of food lovers! Get the latest seasonal recipes, cooking tips, and farmers market finds delivered straight to you.
             </p>
             <div className="flex space-x-4">
               <a

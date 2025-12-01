@@ -34,7 +34,6 @@ export default async function Home() {
             priority
             style={{ transform: 'scale(1.1)' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary-dark/90" />
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl">

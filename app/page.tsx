@@ -5,11 +5,11 @@ import { getFeaturedRecipes } from '@/lib/supabase'
 export default async function Home() {
   const features = [
     {
-      title: 'Expert Guides',
+      title: 'Videos',
       description: 'Learn from experienced foragers with detailed identification guides and safety tips.',
     },
     {
-      title: 'Wild Recipes',
+      title: 'Recipes',
       description: 'Transform your foraged finds into delicious meals with our tested recipes.',
     },
     {

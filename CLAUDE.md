@@ -1,3 +1,4 @@
 - when a database change needs to be made, make sure to create migration scripts so we don't have to reset the database
 - never use the Javascript Alert, use a custom nice looking modal for errors or warnings, and simple notifications for success messages, if a modal or notification system isn't in place, create one
 - when storing files and images, make sure to save them in supabase
+- commit and push changes to the git repo after each task

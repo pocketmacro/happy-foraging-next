@@ -18,17 +18,17 @@ const config: Config = {
         'slide-in-right': 'slide-in-right 0.3s ease-out',
       },
       colors: {
-        // Primary greens from happyforaging.com
+        // Primary orange from logo
         primary: {
-          DEFAULT: '#4b916d',
-          dark: '#0d4f3d',
-          light: '#97c693',
+          DEFAULT: '#F39C12',
+          dark: '#E67E22',
+          light: '#F9A825',
         },
-        // Secondary colors
+        // Secondary colors - warm tones
         secondary: {
-          DEFAULT: '#97c693',
-          light: '#bde2a7',
-          lighter: '#c1f0c1',
+          DEFAULT: '#F9A825',
+          light: '#FDB45C',
+          lighter: '#FFCC80',
         },
         // Accent colors - warm tones
         accent: {

@@ -36,6 +36,12 @@ const config: Config = {
           peach: '#fda77f',
           yellow: '#f9ad4d',
         },
+        // Logo green from pineapple leaves
+        green: {
+          DEFAULT: '#6B9B5C',
+          light: '#7CAF6E',
+          dark: '#5A8A4B',
+        },
         // Custom text colors
         text: {
           dark: '#151414',

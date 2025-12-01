@@ -24,16 +24,16 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-text-dark hover:text-primary font-medium transition-colors">
+            <Link href="/" className="text-green hover:text-primary font-medium transition-colors">
               Home
             </Link>
-            <Link href="/recipes" className="text-text-dark hover:text-primary font-medium transition-colors">
+            <Link href="/recipes" className="text-green hover:text-primary font-medium transition-colors">
               Recipes
             </Link>
-            <Link href="/guides" className="text-text-dark hover:text-primary font-medium transition-colors">
+            <Link href="/guides" className="text-green hover:text-primary font-medium transition-colors">
               Guides
             </Link>
-            <Link href="/about" className="text-text-dark hover:text-primary font-medium transition-colors">
+            <Link href="/about" className="text-green hover:text-primary font-medium transition-colors">
               About
             </Link>
           </div>
@@ -60,28 +60,28 @@ export default function Header() {
             <div className="flex flex-col space-y-4">
               <Link
                 href="/"
-                className="text-text-dark hover:text-primary font-medium transition-colors"
+                className="text-green hover:text-primary font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 href="/recipes"
-                className="text-text-dark hover:text-primary font-medium transition-colors"
+                className="text-green hover:text-primary font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Recipes
               </Link>
               <Link
                 href="/guides"
-                className="text-text-dark hover:text-primary font-medium transition-colors"
+                className="text-green hover:text-primary font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Guides
               </Link>
               <Link
                 href="/about"
-                className="text-text-dark hover:text-primary font-medium transition-colors"
+                className="text-green hover:text-primary font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About

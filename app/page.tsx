@@ -101,11 +101,6 @@ export default async function Home() {
                     <div className="absolute top-4 right-4 bg-accent-orange text-white px-3 py-1 rounded-full text-sm font-semibold">
                       {recipe.prep_time} min
                     </div>
-                    {recipe.icon && (
-                      <div className="absolute top-4 left-4 text-4xl">
-                        {recipe.icon}
-                      </div>
-                    )}
                   </div>
                   <div className="p-6">
                     <div className="flex flex-wrap gap-1 mb-2">

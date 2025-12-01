@@ -49,7 +49,6 @@ export default async function RecipePage({ params }: { params: { slug: string } 
               ← Back to Recipes
             </Link>
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-5xl">{recipe.icon}</span>
               <span className="bg-accent-orange px-4 py-1 rounded-full text-sm font-semibold">
                 {recipe.prep_time} min
               </span>

@@ -58,7 +58,6 @@ export default async function GuidePage({ params }: { params: { slug: string } }
               ← Back to Guides
             </Link>
             <div className="flex items-center gap-3 mb-2">
-              {guide.icon && <span className="text-5xl">{guide.icon}</span>}
               {guide.category && (
                 <span className="bg-primary px-4 py-1 rounded-full text-sm font-semibold capitalize">
                   {guide.category}

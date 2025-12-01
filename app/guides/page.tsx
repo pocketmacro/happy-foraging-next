@@ -20,12 +20,12 @@ export default function GuidesPage() {
   }
 
   const safetyTips = [
-    'Never eat anything you cannot positively identify',
-    'Start with easily identifiable plants',
-    'Learn from experienced foragers',
-    'Check local regulations before foraging',
-    'Forage away from polluted areas',
-    'Harvest sustainably - take only what you need',
+    'Choose produce that is in season for best flavor and value',
+    'Look for bright colors and firm textures',
+    'Get to know your local farmers and suppliers',
+    'Check farmers market schedules in your area',
+    'Store fresh produce properly to maximize freshness',
+    'Buy only what you need to reduce food waste',
   ]
 
   return (
@@ -33,24 +33,23 @@ export default function GuidesPage() {
       {/* Hero Section */}
       <section className="bg-primary-dark text-white py-16">
         <div className="container-custom px-4">
-          <h1 className="heading-1 text-white mb-4">Guides</h1>
+          <h1 className="heading-1 text-white mb-4">Seasonal Guides</h1>
           <p className="text-xl max-w-2xl">
-            Learn to safely identify, harvest, and preserve wild foods with our comprehensive guides
+            Learn to select, prepare, and preserve fresh, local ingredients with our comprehensive seasonal guides
           </p>
         </div>
       </section>
 
-      {/* Safety First Section */}
+      {/* Tips Section */}
       <section className="section bg-accent-yellow/10">
         <div className="container-custom px-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-5xl">⚠️</span>
-              <h2 className="heading-2">Safety First</h2>
+              <h2 className="heading-2">Shopping Tips</h2>
             </div>
             <div className="bg-white rounded-lg p-8 shadow-md">
               <p className="text-lg text-text-dark mb-6">
-                Foraging can be rewarding, but safety must always come first. Follow these essential guidelines:
+                Getting the most from farmers markets and local suppliers is easy when you follow these helpful tips:
               </p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {safetyTips.map((tip, index) => (

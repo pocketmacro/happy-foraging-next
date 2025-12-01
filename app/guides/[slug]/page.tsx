@@ -124,12 +124,11 @@ export default async function GuidePage({ params }: { params: { slug: string } }
         <div className="container-custom px-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-4xl">⚠️</span>
-              <h2 className="text-2xl font-bold text-text-dark">Safety Reminder</h2>
+              <h2 className="text-2xl font-bold text-text-dark">Shopping Tip</h2>
             </div>
             <p className="text-text-dark">
-              Always exercise caution when foraging. Never consume anything you cannot positively identify.
-              When in doubt, consult with experienced foragers or experts in your area.
+              For the best quality and flavor, choose produce that is in season and locally grown.
+              Don't hesitate to ask your local farmers and suppliers for recommendations and preparation tips.
             </p>
           </div>
         </div>

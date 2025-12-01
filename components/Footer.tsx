@@ -11,8 +11,8 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">Happy Foraging</h3>
             <p className="text-gray-300 leading-relaxed">
-              Discover the joy of foraging with expert guides, delicious wild food recipes,
-              and sustainable harvesting practices.
+              Discover the joy of cooking with fresh, local ingredients from farmers markets
+              and local suppliers with seasonal recipes and expert tips.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/guides" className="text-gray-300 hover:text-secondary-light transition-colors">
-                  Foraging Guides
+                  Seasonal Guides
                 </Link>
               </li>
               <li>
@@ -42,7 +42,7 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">Connect With Us</h3>
             <p className="text-gray-300 mb-4">
-              Join our community of foraging enthusiasts and stay updated with the latest recipes and guides.
+              Join our community of local food enthusiasts and stay updated with the latest seasonal recipes and guides.
             </p>
             <div className="flex space-x-4">
               <a

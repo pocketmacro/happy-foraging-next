@@ -49,7 +49,7 @@ export default async function Home() {
               Explore Recipes
             </Link>
             <Link href="/guides" className="btn-secondary bg-white/90 hover:bg-white">
-              Guides
+              Videos
             </Link>
           </div>
         </div>

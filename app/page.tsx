@@ -45,7 +45,7 @@ export default async function Home() {
             Welcome to Happy Foraging
           </h1>
           <p className="text-xl md:text-2xl mb-8 leading-relaxed">
-            Discover the art of foraging and transform wild ingredients into delicious, sustainable meals
+            Discover the art of foraging and transforming local ingredients into delicious meals
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/recipes" className="btn-primary">

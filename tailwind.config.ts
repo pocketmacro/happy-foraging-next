@@ -43,7 +43,7 @@ const config: Config = {
           dark: '#5A8A4B',
         },
         // Chartreuse
-        chartreuse: '#DFFF00',
+        chartreuse: '#A8E44A',
         // Custom text colors
         text: {
           dark: '#151414',

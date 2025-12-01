@@ -6,15 +6,15 @@ export default async function Home() {
   const features = [
     {
       title: 'Videos',
-      description: 'Learn from experienced foragers with detailed identification guides and safety tips.',
+      description: 'Learn cooking techniques and tips for making the most of seasonal, local ingredients.',
     },
     {
       title: 'Recipes',
-      description: 'Transform your foraged finds into delicious meals with our tested recipes.',
+      description: 'Discover delicious recipes featuring fresh ingredients from farmers markets and local suppliers.',
     },
     {
       title: 'Sustainable',
-      description: 'Practice ethical foraging that respects nature and preserves ecosystems.',
+      description: 'Support local farmers and reduce your carbon footprint with community-based food sourcing.',
     },
   ]
 
@@ -42,7 +42,7 @@ export default async function Home() {
             Welcome to Happy Foraging
           </h1>
           <p className="text-xl md:text-2xl mb-8 leading-relaxed">
-            Discover the art of foraging and transforming local ingredients into delicious meals
+            Discover the joy of cooking with fresh, local ingredients from farmers markets and local suppliers
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/recipes" className="btn-primary">
@@ -123,9 +123,9 @@ export default async function Home() {
       {/* Call to Action */}
       <section className="section bg-primary text-white">
         <div className="container-custom text-center">
-          <h2 className="text-4xl font-bold mb-6">Start Your Foraging Journey Today</h2>
+          <h2 className="text-4xl font-bold mb-6">Start Cooking with Local Ingredients Today</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Join our community and learn how to safely identify, harvest, and prepare wild foods
+            Join our community and discover how to source and prepare delicious meals with fresh, local ingredients
           </p>
           <Link href="/guides" className="btn-secondary border-white hover:bg-white/10">
             Get Started

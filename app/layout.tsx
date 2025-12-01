@@ -11,13 +11,13 @@ const robotoCondensed = Roboto_Condensed({
 })
 
 export const metadata: Metadata = {
-  title: 'Happy Foraging - Wild Food Recipes & Foraging Guides',
-  description: 'Discover the joy of foraging with expert guides, delicious wild food recipes, and sustainable harvesting practices. Learn to identify, harvest, and cook wild edibles safely.',
-  keywords: ['foraging', 'wild food', 'edible plants', 'recipes', 'nature', 'sustainable'],
+  title: 'Happy Foraging - Local Recipes & Farmers Market Guides',
+  description: 'Discover the joy of cooking with fresh, local ingredients from farmers markets and local suppliers. Explore seasonal recipes, cooking tips, and find local producers near you.',
+  keywords: ['local food', 'farmers market', 'seasonal recipes', 'local ingredients', 'sustainable eating', 'local suppliers'],
   authors: [{ name: 'Happy Foraging' }],
   openGraph: {
-    title: 'Happy Foraging - Wild Food Recipes & Foraging Guides',
-    description: 'Discover the joy of foraging with expert guides, delicious wild food recipes, and sustainable harvesting practices.',
+    title: 'Happy Foraging - Local Recipes & Farmers Market Guides',
+    description: 'Discover the joy of cooking with fresh, local ingredients from farmers markets and local suppliers. Explore seasonal recipes and find local producers.',
     type: 'website',
   },
 }

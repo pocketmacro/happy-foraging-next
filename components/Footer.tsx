@@ -10,7 +10,7 @@ export default function Footer() {
           {/* About Section */}
           <div>
             <h3 className="text-xl font-bold mb-4">Happy Foraging</h3>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-green-light leading-relaxed">
               We're passionate about celebrating fresh, local ingredients and the amazing farmers who grow them.
               Join us for delicious recipes, seasonal tips, and lots of cooking inspiration!
             </p>
@@ -21,17 +21,17 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/recipes" className="text-gray-300 hover:text-secondary-light transition-colors">
+                <Link href="/recipes" className="text-green-light hover:text-secondary-light transition-colors">
                   Recipes
                 </Link>
               </li>
               <li>
-                <Link href="/guides" className="text-gray-300 hover:text-secondary-light transition-colors">
+                <Link href="/guides" className="text-green-light hover:text-secondary-light transition-colors">
                   Seasonal Guides
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-300 hover:text-secondary-light transition-colors">
+                <Link href="/about" className="text-green-light hover:text-secondary-light transition-colors">
                   About Us
                 </Link>
               </li>
@@ -41,13 +41,13 @@ export default function Footer() {
           {/* Contact & Social */}
           <div>
             <h3 className="text-xl font-bold mb-4">Connect With Us</h3>
-            <p className="text-gray-300 mb-4">
+            <p className="text-green-light mb-4">
               Join our friendly community of food lovers! Get the latest seasonal recipes, cooking tips, and farmers market finds delivered straight to you.
             </p>
             <div className="flex space-x-4">
               <a
                 href="#"
-                className="text-gray-300 hover:text-secondary-light transition-colors"
+                className="text-green-light hover:text-secondary-light transition-colors"
                 aria-label="Facebook"
               >
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="text-gray-300 hover:text-secondary-light transition-colors"
+                className="text-green-light hover:text-secondary-light transition-colors"
                 aria-label="Instagram"
               >
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -67,7 +67,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-primary mt-8 pt-8 text-center text-gray-300">
+        <div className="border-t border-primary mt-8 pt-8 text-center text-green-light">
           <p>&copy; {currentYear} Happy Foraging. All rights reserved.</p>
         </div>
       </div>

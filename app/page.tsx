@@ -34,7 +34,7 @@ export default async function Home() {
             priority
             style={{ transform: 'scale(1.1)' }}
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/20" />
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl">

@@ -27,8 +27,8 @@ export default async function Home() {
       <section className="relative h-[600px] flex items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0" style={{ transform: 'translateZ(0)' }}>
           <Image
-            src="/images/backgrounds/hero-1.jpg"
-            alt="Foraging in nature"
+            src="/images/backgrounds/hero-2.jpg"
+            alt="Fresh local ingredients"
             fill
             className="object-cover"
             priority

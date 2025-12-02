@@ -27,7 +27,7 @@ export default async function Home() {
       <section className="relative h-[600px] flex items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0" style={{ transform: 'translateZ(0)' }}>
           <Image
-            src="/images/backgrounds/hero-3.png"
+            src="https://jfybqfqxethprtvnkuvj.supabase.co/storage/v1/object/public/recipe-images/recipes/content/Hero-4.avif"
             alt="Fresh local ingredients"
             fill
             className="object-cover"
